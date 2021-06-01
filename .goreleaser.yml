@@ -12,8 +12,11 @@ builds:
     ldflags:
      - -s -w -X main.version={{.Version}} -X main.commit={{.ShortCommit}} -X main.date={{.Date}}
     binary: "pscale"   
+checksum:
+  name_template: '{{ .ProjectName }}_checksums.txt'
 nfpms:
   - maintainer: PlanetScale
+    file_name_template: '{{ .ProjectName }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
     description: The PlanetScale CLI
     homepage: https://github.com/planetscale/cli
     license: Apache 2.0
@@ -39,7 +42,8 @@ brews:
     install: |
       bin.install "pscale"
 archives:
-  - replacements:
+  - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+    replacements:
       darwin: macOS
     format_overrides:
       - goos: windows
@@ -52,3 +56,4 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+      - Merge pull request
