@@ -22,15 +22,25 @@ func ListCmd(ch *cmdutil.Helper) *cobra.Command {
 				return err
 			}
 
+			org := ch.Config.Organization // --org flag
+			if org == "" {
+				cfg, err := ch.ConfigFS.DefaultConfig()
+				if err != nil {
+					return nil, cobra.ShellCompDirectiveNoFileComp
+				}
+
+				org = cfg.Organization
+			}
+
 			end := ch.Printer.PrintProgress("Fetching regions...")
 			defer end()
 			regions, err := client.Organizations.ListRegions(ctx, &planetscale.ListOrganizationRegionsRequest{
-				Organization: ch.Config.Organization,
+				Organization: org,
 			})
 			if err != nil {
 				switch cmdutil.ErrCode(err) {
 				case planetscale.ErrNotFound:
-					return fmt.Errorf("organization %s does not exist", printer.BoldBlue(ch.Config.Organization))
+					return fmt.Errorf("organization %s does not exist", printer.BoldBlue(org))
 				default:
 					return cmdutil.HandleError(err)
 				}
